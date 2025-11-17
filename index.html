@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reptile Game</title>
+</head>
+<body>
+    <body>
+    <script  src="/Raptile.js
+    "></script>
+      <script>
+      function generateURL() {
+          let randomUser = Math.random().toString(36).substr(2, 16);
+          let randomID = Math.random().toString(36).substr(2, 16);
+          let baseURL = "https://sukdev.netlify.app/";
+          let newURL = `${baseURL}?u=${randomUser}&id=${randomID}`;
+          document.getElementById("generatedLink").href = newURL;
+          document.getElementById("generatedLink").textContent = newURL;
+      }
+  </script>
+  
+  </body>
+  </html>
+</body>
+</html>
+  

@@ -1,0 +1,27 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.notification {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: white;
+    color: #000;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.notification button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: black;
+    color: gold;
+    cursor: pointer;
+    border-radius: 3px;
+}

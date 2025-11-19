@@ -1,0 +1,221 @@
+/* বেসিক রিসেট */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #000;
+    color: white;
+    display: flex;
+    justify-content: center;
+}
+
+/* মোবাইল কন্টেইনার সিমুলেশন */
+.mobile-container {
+    width: 100%;
+    max-width: 400px; /* মোবাইলের মতো দেখতে */
+    background-color: #000;
+    min-height: 100vh;
+    border: 1px solid #333;
+}
+
+/* হেডার স্টাইল */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+}
+
+.logo span {
+    color: #ff4d4d; /* লাল রঙের NOW */
+}
+
+.header-icons i {
+    font-size: 18px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/* মেনু বার */
+.menu-bar {
+    background-color: #222;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+
+.menu-bar i {
+    margin-right: 5px;
+}
+
+/* ট্যাগ বাটন সেকশন */
+.tags-container {
+    padding: 15px 5px;
+    text-align: center;
+}
+
+.tag-row {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    background-color: transparent;
+    border: 1px solid #444;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn:hover {
+    border-color: #fff;
+}
+
+/* গোলাপি বাটন (+ best) */
+.pink-btn {
+    background-color: #e91e63;
+    border-color: #e91e63;
+}
+
+/* ভিডিও প্লেয়ার */
+.video-player {
+    width: 100%;
+    height: 220px;
+    position: relative;
+    /* ব্লার ব্যাকগ্রাউন্ড ইফেক্ট */
+    background: linear-gradient(135deg, #4a4a4a, #2c3e50, #4a4a4a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* প্লে বাটন */
+.play-btn-circle {
+    width: 60px;
+    height: 60px;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+
+.play-btn-circle i {
+    font-size: 24px;
+    margin-left: 4px; /* প্লে আইকন সামান্য ডানে সরানোর জন্য */
+}
+
+/* প্লেয়ার কন্ট্রোলস */
+.video-controls {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
+
+.time {
+    font-size: 12px;
+    margin-right: 10px;
+}
+
+.progress-bar {
+    flex-grow: 1;
+    height: 3px;
+    background: #555;
+    margin-right: 10px;
+    position: relative;
+}
+
+.progress-fill {
+    width: 60%;
+    height: 100%;
+    background: #aaa;
+}
+
+.control-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hd-badge {
+    background: #ccc;
+    color: black;
+    font-size: 10px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+/* ভিডিও ইনফরমেশন */
+.video-info {
+    padding: 15px;
+    border-bottom: 1px solid #222;
+}
+
+.video-info h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.video-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.video-meta i {
+    margin-right: 5px;
+}
+
+/* রিলেটেড ভিডিও সেকশন */
+.related-section {
+    padding: 15px;
+}
+
+.related-section h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.thumbnail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.thumb-box {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to bottom, #444, #222);
+    border-radius: 4px;
+}

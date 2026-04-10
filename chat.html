@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>MyChat-Ai | Global AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .chat-container { max-width: 500px; width: 100%; height: 100vh; background: white; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .chat-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .logo { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .logo-status { font-size: 10px; background: #ff9800; padding: 2px 8px; border-radius: 20px; margin-left: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        .header-buttons { display: flex; gap: 10px; }
+        .clear-btn, .home-btn, .data-btn { background: rgba(255,255,255,0.2); border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; color: white; font-size: 14px; text-decoration: none; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
+        .message { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { justify-content: flex-end; }
+        .message.bot { justify-content: flex-start; }
+        .message-bubble { max-width: 80%; padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .message.user .message-bubble { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-bottom-right-radius: 4px; }
+        .message.bot .message-bubble { background: white; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .typing { display: flex; gap: 4px; padding: 8px 0; }
+        .typing span { width: 8px; height: 8px; background: #999; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+        .typing span:nth-child(1) { animation-delay: -0.32s; }
+        .typing span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        .chat-input-area { padding: 12px 16px; background: white; border-top: 1px solid #e0e0e0; display: flex; gap: 10px; flex-shrink: 0; }
+        .chat-input-area input { flex: 1; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 30px; font-size: 15px; outline: none; }
+        .chat-input-area input:focus { border-color: #667eea; }
+        .chat-input-area button { padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 30px; font-weight: 600; cursor: pointer; }
+        .quick-tips { display: flex; justify-content: space-around; padding: 8px 16px; background: #f0f0f0; font-size: 11px; color: #666; border-top: 1px solid #e0e0e0; flex-wrap: wrap; gap: 8px; }
+        .quick-tips span { cursor: pointer; padding: 4px 8px; border-radius: 20px; background: white; }
+        .data-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .data-modal-content { background: white; border-radius: 24px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 20px; }
+        .data-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #667eea; }
+        .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        .data-section { margin-bottom: 20px; }
+        .data-section h4 { color: #667eea; margin-bottom: 8px; }
+        .data-item { background: #f8f9fa; padding: 8px 12px; border-radius: 12px; margin-bottom: 6px; font-size: 13px; }
+        .loading { text-align: center; padding: 20px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="logo">
+                <span>🤖</span>
+                <span>MyChat-Ai</span>
+                <span class="logo-status" id="connectionStatus">● Connecting</span>
+            </div>
+            <div class="header-buttons">
+                <button id="viewDataBtn" class="data-btn">📊 Data</button>
+                <button id="clearMemoryBtn" class="clear-btn">🗑️ Clear</button>
+                <a href="index.html" class="home-btn">🏠</a>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-bubble">
+                    🎉 *Welcome to MyChat-Ai!*\n\nI'm connected to Back4App cloud database.\n\n✨ *Features:*\n• All users share questions & answers\n• Your data helps others learn\n• Type "help" to see commands\n\n💡 Try: "My name is [your name]" or "help"
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="userInput" placeholder="Type your message..." autocomplete="off">
+            <button id="sendBtn">Send</button>
+        </div>
+        <div class="quick-tips">
+            <span data-command="?">❓ Question?</span>
+            <span data-command="!">💡 !Answer</span>
+            <span data-command=";">📌 ;Note</span>
+            <span data-command="help">📋 Help</span>
+            <span data-command="global">🌍 Global Qs</span>
+        </div>
+    </div>
+
+    <div id="dataModal" class="data-modal">
+        <div class="data-modal-content">
+            <div class="data-modal-header">
+                <h3>📊 Global Database</h3>
+                <button class="close-modal" id="closeModalBtn">&times;</button>
+            </div>
+            <div id="dataModalBody" class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Parse SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/parse@4.3.1/dist/parse.min.js"></script>
+
+    <script>
+        // ========== YOUR BACK4APP KEYS ==========
+        const BACK4APP_APP_ID = 'nOFUElNoid67wx2p6GGRcI5rXfvcmSx2Wpwjtejk';
+        const BACK4APP_JS_KEY = 'xdDduzEijo0lGlTUnujKhiAHAiQ3hd0MqX7EzPOT';
+        const BACK4APP_SERVER_URL = 'https://parseapi.back4app.com';
+        // ========================================
+        
+        // Initialize Parse
+        Parse.initialize(BACK4APP_APP_ID, BACK4APP_JS_KEY);
+        Parse.serverURL = BACK4APP_SERVER_URL;
+        
+        // Connection status
+        const statusEl = document.getElementById('connectionStatus');
+        
+        // Test connection
+        async function testConnection() {
+            try {
+                const Test = Parse.Object.extend('Questions');
+                const query = new Parse.Query(Test);
+                query.limit(1);
+                await query.find();
+                statusEl.textContent = '● Connected';
+                statusEl.style.background = '#4caf50';
+                console.log('✅ Connected to Back4App!');
+                return true;
+            } catch(error) {
+                statusEl.textContent = '● Error';
+                statusEl.style.background = '#f44336';
+                console.error('❌ Connection error:', error);
+                return false;
+            }
+        }
+        testConnection();
+        
+        // ========== LOCAL STORAGE ==========
+        const LOCAL_KEY = 'MyChat_Local';
+        
+        function getLocalData() {
+            const data = localStorage.getItem(LOCAL_KEY);
+            if (!data) return { userName: null };
+            return JSON.parse(data);
+        }
+        
+        function saveLocalData(data) {
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+        }
+        
+        function setUserName(name) {
+            const data = getLocalData();
+            data.userName = name;
+            saveLocalData(data);
+        }
+        
+        function getUserName() {
+            return getLocalData().userName;
+        }
+        
+        // ========== BACK4APP OPERATIONS ==========
+        
+        async function saveQuestionGlobally(questionText, userName) {
+            const Question = Parse.Object.extend('Questions');
+            const question = new Question();
+            question.set('text', questionText);
+            question.set('askedBy', userName || 'anonymous');
+            question.set('answered', false);
+            question.set('timestamp', new Date());
+            try {
+                return await question.save();
+            } catch(error) {
+                console.error('Save error:', error);
+                return null;
+            }
+        }
+        
+        async function saveAnswerGlobally(answerText, questionId, userName) {
+            const Answer = Parse.Object.extend('Answers');
+            const answer = new Answer();
+            answer.set('text', answerText);
+            answer.set('questionId', questionId);
+            answer.set('answeredBy', userName || 'anonymous');
+            answer.set('upvotes', 0);
+            answer.set('timestamp', new Date());
+            try {
+                const result = await answer.save();
+                const Question = Parse.Object.extend('Questions');
+                const query = new Parse.Query(Question);
+                const question = await query.get(questionId);
+                question.set('answered', true);
+                question.set('bestAnswerId', result.id);
+                await question.save();
+                return result;
+            } catch(error) {
+                console.error('Save error:', error);
+                return null;
+            }
+        }
+        
+        async function findAnswerForQuestionGlobally(questionText) {
+            const Question = Parse.Object.extend('Questions');
+            const query = new Parse.Query(Question);
+            query.equalTo('text', questionText);
+            try {
+                const question = await query.first();
+                if (!question || !question.get('answered')) return null;
+                const Answer = Parse.Object.extend('Answers');
+                const answerQuery = new Parse.Query(Answer);
+                answerQuery.equalTo('questionId', question.id);
+                const answer = await answerQuery.first();
+                return answer ? answer.get('text') : null;
+            } catch(error) {
+                return null;
+            }
+        }
+        
+        async function getAllQuestions() {
+            const Question = Parse.Object.extend('Questions');
+            const query = new Parse.Query(Question);
+            query.descending('timestamp');
+            query.limit(50);
+            try {
+                return await query.find();
+            } catch(error) {
+                return [];
+            }
+        }
+        
+        async function getUnansweredQuestions() {
+            const Question = Parse.Object.extend('Questions');
+            const query = new Parse.Query(Question);
+            query.equalTo('answered', false);
+            query.descending('timestamp');
+            query.limit(10);
+            try {
+                return await query.find();
+            } catch(error) {
+                return [];
+            }
+        }
+        
+        async function saveNoteGlobally(noteText, userName) {
+            const Note = Parse.Object.extend('Notes');
+            const note = new Note();
+            let category = 'general';
+            if (noteText.toLowerCase().includes('meeting')) category = 'meeting';
+            else if (noteText.toLowerCase().includes('idea')) category = 'idea';
+            else if (noteText.toLowerCase().includes('task')) category = 'task';
+            note.set('text', noteText);
+            note.set('createdBy', userName || 'anonymous');
+            note.set('category', category);
+            note.set('timestamp', new Date());
+            try {
+                return await note.save();
+            } catch(error) {
+                return null;
+            }
+        }
+        
+        async function getAllNotes() {
+            const Note = Parse.Object.extend('Notes');
+            const query = new Parse.Query(Note);
+            query.descending('timestamp');
+            query.limit(30);
+            try {
+                return await query.find();
+            } catch(error) {
+                return [];
+            }
+        }
+        
+        // ========== UI FUNCTIONS ==========
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const clearBtn = document.getElementById('clearMemoryBtn');
+        const viewDataBtn = document.getElementById('viewDataBtn');
+        const dataModal = document.getElementById('dataModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const dataModalBody = document.getElementById('dataModalBody');
+        
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-bubble">${text.replace(/\n/g, '<br>')}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        let typingDiv = null;
+        function showTyping() {
+            if (typingDiv) return;
+            typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="message-bubble typing"><span></span><span></span><span></span></div>`;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTyping() {
+            if (typingDiv) {
+                typingDiv.remove();
+                typingDiv = null;
+            }
+        }
+        
+        function getRandomDelay() {
+            return Math.random() * 1000 + 500;
+        }
+        
+        // ========== MAIN PROCESSOR ==========
+        async function processMessage(message) {
+            const lowerMsg = message.toLowerCase().trim();
+            const userName = getUserName() || 'anonymous';
+            
+            // Global questions view
+            if (lowerMsg === 'global questions' || lowerMsg === 'global qs' || lowerMsg === 'show global') {
+                const questions = await getAllQuestions();
+                if (questions.length === 0) {
+                    return "🌍 No global questions yet.\n\n💡 Be the first! End a message with '?'";
+                }
+                let response = `🌍 *Global Questions* (${questions.length})\n\n`;
+                const answered = questions.filter(q => q.get('answered')).length;
+                response += `✅ Answered: ${answered} | ❓ Unanswered: ${questions.length - answered}\n\n`;
+                questions.slice(0, 8).forEach(q => {
+                    const status = q.get('answered') ? '✅' : '❓';
+                    response += `${status} ${q.get('text')}\n`;
+                });
+                return response;
+            }
+            
+            // Question mark
+            if (message.endsWith('?')) {
+                const cleanQuestion = message.slice(0, -1).trim();
+                const existingAnswer = await findAnswerForQuestionGlobally(cleanQuestion);
+                if (existingAnswer) {
+                    return `📚 *Already answered!*\n\n❓ ${cleanQuestion}\n✅ ${existingAnswer}`;
+                }
+                const result = await saveQuestionGlobally(cleanQuestion, userName);
+                if (result) {
+                    return `❓ *Question saved to cloud!*\n\n"${cleanQuestion}"\n\n💡 When you find the answer, type: ! your answer`;
+                } else {
+                    return `❌ Connection error. Make sure you created the Questions class in Back4App!`;
+                }
+            }
+            
+            // Exclamation mark
+            if (message.startsWith('!')) {
+                const answerText = message.substring(1).trim();
+                if (!answerText) return "Please write an answer after !";
+                const unanswered = await getUnansweredQuestions();
+                if (unanswered.length > 0) {
+                    const latestQuestion = unanswered[0];
+                    const result = await saveAnswerGlobally(answerText, latestQuestion.id, userName);
+                    if (result) {
+                        return `✅ *Answer saved!*\n\n📝 ${latestQuestion.get('text')}\n💡 ${answerText}`;
+                    } else {
+                        return `❌ Connection error. Make sure you created the Answers class!`;
+                    }
+                } else {
+                    return `📭 No unanswered questions found.\n\n💡 Ask a question first with "?"`;
+                }
+            }
+            
+            // Semicolon
+            if (message.startsWith(';')) {
+                const noteText = message.substring(1).trim();
+                if (!noteText) return "Please write something after ;";
+                const result = await saveNoteGlobally(noteText, userName);
+                if (result) {
+                    return `📌 *Note saved!*\n\n"${noteText}"`;
+                } else {
+                    return `❌ Connection error. Make sure you created the Notes class!`;
+                }
+            }
+            
+            // Show notes
+            if (lowerMsg === 'show notes' || lowerMsg === 'my notes') {
+                const notes = await getAllNotes();
+                if (notes.length === 0) return "📭 No notes yet. Start with ';'";
+                let response = `📌 *Notes* (${notes.length})\n\n`;
+                notes.slice(0, 10).forEach(n => {
+                    response += `📝 ${n.get('text')}\n`;
+                });
+                return response;
+            }
+            
+            // Check global answer
+            const globalAnswer = await findAnswerForQuestionGlobally(message);
+            if (globalAnswer) {
+                return `📚 *Found in database!*\n\n❓ ${message}\n✅ ${globalAnswer}`;
+            }
+            
+            // Name set
+            const nameMatch = message.match(/my name is (\w+)/i) || message.match(/i am (\w+)/i);
+            if (nameMatch) {
+                const newName = nameMatch[1];
+                setUserName(newName);
+                return `🎉 Nice to meet you, ${newName}!\n\n🌍 Type "help" to see commands!`;
+            }
+            
+            // Name ask
+            if (lowerMsg.includes('what is my name') || lowerMsg.includes("what's my name")) {
+                const name = getUserName();
+                if (name) return `Your name is ${name}! 😊`;
+                return "I don't know your name yet. Say 'My name is [your name]'";
+            }
+            
+            // Help
+            if (lowerMsg === 'help' || lowerMsg === 'commands') {
+                return `🤖 *MyChat-Ai Commands*\n\n` +
+                    `❓ *Ask Question* - End with "?"\n` +
+                    `💡 *Answer* - Start with "!"\n` +
+                    `📌 *Note* - Start with ";"\n\n` +
+                    `🌍 *View* - "global questions"\n` +
+                    `📌 *View Notes* - "show notes"\n` +
+                    `👤 *Name* - "My name is [name]"\n\n` +
+                    `💡 Try: "What is AI?"`;
+            }
+            
+            // Greetings
+            if (lowerMsg.match(/^(hi|hello|hey)/)) {
+                const name = getUserName();
+                if (name) return `Hello ${name}! 👋 How can I help?\n\nType "help" for commands!`;
+                return `Hello! 👋 Welcome to MyChat-Ai!\n\n💡 Tell me your name: "My name is [your name]"`;
+            }
+            
+            // Default
+            const name = getUserName();
+            if (name) {
+                return `🤔 I'm not sure, ${name}.\n\n💡 End with "?" to save as question, or type "help"`;
+            }
+            return `🤔 I don't know your name.\n\n💡 Say "My name is [your name]" to start!\n\nThen type "help" to see all commands!`;
+        }
+        
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            addMessage(message, 'user');
+            userInput.value = '';
+            showTyping();
+            setTimeout(async () => {
+                const response = await processMessage(message);
+                hideTyping();
+                addMessage(response, 'bot');
+            }, getRandomDelay());
+        }
+        
+        async function showDataModal() {
+            dataModalBody.innerHTML = '<div class="loading">Loading...</div>';
+            dataModal.style.display = 'flex';
+            const questions = await getAllQuestions();
+            const notes = await getAllNotes();
+            let html = `<div class="data-section">
+                <h4>📊 Overview</h4>
+                <div class="data-item">👤 Name: ${getUserName() || 'Not set'}</div>
+                <div class="data-item">❓ Questions: ${questions.length}</div>
+                <div class="data-item">📌 Notes: ${notes.length}</div>
+            </div>`;
+            if (questions.length > 0) {
+                html += `<div class="data-section"><h4>❓ Questions</h4>`;
+                questions.slice(0, 8).forEach(q => {
+                    html += `<div class="data-item">${q.get('answered') ? '✅' : '❓'} ${q.get('text')}</div>`;
+                });
+                html += `</div>`;
+            }
+            dataModalBody.innerHTML = html;
+        }
+        
+        function closeModal() { dataModal.style.display = 'none'; }
+        function clearMemory() {
+            if (confirm('Clear your local name? This does not affect global data.')) {
+                localStorage.removeItem(LOCAL_KEY);
+                chatMessages.innerHTML = '';
+                addMessage("🧹 Local memory cleared! What's your name?", 'bot');
+            }
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        clearBtn.addEventListener('click', clearMemory);
+        viewDataBtn.addEventListener('click', showDataModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        window.addEventListener('click', (e) => { if (e.target === dataModal) closeModal(); });
+        
+        document.querySelectorAll('.quick-tips span').forEach(tip => {
+            tip.addEventListener('click', () => {
+                const cmd = tip.getAttribute('data-command');
+                if (cmd === '?') userInput.value = userInput.value + '?';
+                else if (cmd === '!') userInput.value = '! ';
+                else if (cmd === ';') userInput.value = '; ';
+                else if (cmd === 'help') userInput.value = 'help';
+                else if (cmd === 'global') userInput.value = 'global questions';
+                userInput.focus();
+            });
+        });
+        
+        setTimeout(async () => {
+            const name = getUserName();
+            if (name) {
+                const questions = await getAllQuestions();
+                addMessage(`Welcome back, ${name}! 👋\n\n🌍 ${questions.length} questions in database. Type "help" to start!`, 'bot');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
